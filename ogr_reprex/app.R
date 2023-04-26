@@ -1,6 +1,4 @@
 library(shiny)
-library(codec)
-library(cincy)
 library(bslib)
 library(leaflet)
 library(tmap)
@@ -9,12 +7,8 @@ library(dplyr)
 {
   tmap_mode("view")
   
-  d <- codec_data("tract_indices") |> 
-    left_join(cincy::tract_tigris_2010, by = 'census_tract_id_2010') |> 
+  d <- tigris::tracts(state = 'OH', county = "Hamilton", year = 2010) |> 
     sf::st_as_sf()
-  
-  d <- d |> 
-    select(!where(is.logical))
   
   
 }
@@ -38,7 +32,7 @@ ui <- page_navbar(
   
   fillable = TRUE,
   
-  nav("Showcase",
+  nav("Example",
       ex_card
   ),
   
@@ -50,8 +44,8 @@ server <- function(input, output, session) {
     map <- 
       tm_basemap("CartoDB.Positron") +
       tm_shape(d, unit = 'miles') +
-      tm_polygons(col ="dep_index", alpha = 0.7, palette = codec_colors(), legend.show = FALSE,
-                  popup.vars = c("dep_index"))
+      tm_polygons(col ="ALAND10", alpha = 0.7, legend.show = FALSE,
+                  popup.vars = c("ALAND10"))
     
     map |> 
       tmap_leaflet(in.shiny = TRUE) |> 
